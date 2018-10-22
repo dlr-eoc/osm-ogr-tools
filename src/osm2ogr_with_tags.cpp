@@ -21,6 +21,7 @@
 
 #define PROGRAM_NAME "osm2ogr_with_tags"
 #define LENGTH_FIELD_NAME "osm_length"
+#define DEFAULT_OUTPUT_FORMAT "ESRI Shapefile"
 
 
 namespace
@@ -138,7 +139,7 @@ int main(int argc, char* argv[]) {
         std::vector<std::string> tags;
         std::string outputfile_name;
         std::string inputfile_name;
-        std::string outputfile_format = "ESRI Shapefile";
+        std::string outputfile_format = DEFAULT_OUTPUT_FORMAT;
         bool convertWays = false;
         bool includeLength = false;
 
@@ -152,7 +153,8 @@ int main(int argc, char* argv[]) {
                         "This option only applies when ways are expored.")
             ("tag,t", po::value<std::vector<std::string> >(&tags), "Tags to create columns for. This option "
                         "may be used multiple times to add more than one tag.")
-            ("ways,w", "convert ways instead of nodes. Default is nodes.")
+            ("ways,w", "Convert ways instead of nodes. Default is nodes.")
+            ("format_name,f", po::value<std::string>(&outputfile_format), "Outputformat. Default is \"" DEFAULT_OUTPUT_FORMAT "\"")
             ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the output file")
             ("inputfile,i", po::value<std::string>(&inputfile_name)->required(), "Name of the input file");
 
