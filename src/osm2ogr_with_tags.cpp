@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
             location_handler.ignore_errors();
 
             CPLSetConfigOption("OGR_SQLITE_SYNCHRONOUS", "OFF");
+            CPLSetConfigOption("SHAPE_ENCODING", "UTF8");
             gdalcpp::Dataset dataset{outputfile_format, outputfile_name, gdalcpp::SRS{}, {}};
 
             if (convertWays) {
