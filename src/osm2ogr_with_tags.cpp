@@ -19,7 +19,7 @@
 #include <osmium/handler.hpp>
 
 
-#define PROGRAM_NAME "osm2ogr_tagged"
+#define PROGRAM_NAME "osm2ogr_with_tags"
 #define LENGTH_FIELD_NAME "osm_length"
 
 
@@ -172,6 +172,12 @@ int main(int argc, char* argv[]) {
             if ( vm.count("help") ) {
                 std::cout
                     << PROGRAM_NAME << " (version " << OSM2OGR_VERSION_FULL << ")"
+                    << std::endl
+                    << std::endl
+                    << "Convert OSM data to OGR formats. This tools allows to export arbitary tags to"
+                    << std::endl
+                    << "OGR fields."
+                    << std::endl
                     << std::endl
                     << options
                     << std::endl;
