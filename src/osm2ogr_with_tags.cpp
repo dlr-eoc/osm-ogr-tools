@@ -58,7 +58,7 @@ protected:
 
     void addTagFieldsToLayer(gdalcpp::Layer &layer) {
         for(const std::string& tag : this->tags) {
-            layer.add_field(tag, OFTString, 100);
+            layer.add_field(tag, OFTString, 200);
         }
     }
 
@@ -170,25 +170,34 @@ int main(int argc, char* argv[]) {
 
         namespace po = boost::program_options;
         po::options_description options("Options");
-        options.add_options()
-            ("help,h", "Print help messages")
-            ("version,v", "Print version and exit")
+
+        po::options_description main_options("Input/Output");
+        main_options.add_options()
+            ("inputfile,i", po::value<std::string>(&inputfile_name)->required(), "Name of the input file")
+            ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the output file")
+            ("format_name,f", po::value<std::string>(&outputfile_format), "Outputformat. "
+                        "For a list of supported formats see the output of the \"ogrinfo --formats\" command. "
+                        "The default is \"" DEFAULT_OUTPUT_FORMAT "\".")
+            ("layer_name,l", po::value<std::string>(&layerName), "Layer name of the exported layer. "
+                        "The default is \"" DEFAULT_LAYER_NAME "\".")
+            ("tag,t", po::value<std::vector<std::string> >(&tags), "Tags to create columns for. This option "
+                        "may be repeated multiple times to add more than one tag.")
+            ("ways,w", "Convert ways instead of nodes. Default is nodes.")
             ("length", "Add a field containing the length of features. "
                         "The name of the field will be \"" LENGTH_FIELD_NAME "\". "
                         "This option only applies when ways are exported. "
-                        "The units are meters.")
-            ("layer_name,l", po::value<std::string>(&layerName), "Layer name of the exported layer. "
-                        "The default is \"" DEFAULT_LAYER_NAME "\"")
-            ("tag,t", po::value<std::vector<std::string> >(&tags), "Tags to create columns for. This option "
-                        "may be used multiple times to add more than one tag.")
-            ("progress,p", "Display a progress bar shwoing the percentage of the inputfile "
+                        "The units are meters.");
+        options.add(main_options);
+
+        po::options_description general_options("General");
+        general_options.add_options()
+            ("help,h", "Print help message.")
+            ("version,v", "Print version and exit.")
+            ("progress,p", "Display a progress bar showing the percentage of the inputfile "
                         "which has been processed. As PBF files are sorted by type, the "
                         "output can be a bit misleading, but gives a general idea of the "
-                        "progress made.")
-            ("ways,w", "Convert ways instead of nodes. Default is nodes.")
-            ("format_name,f", po::value<std::string>(&outputfile_format), "Outputformat. Default is \"" DEFAULT_OUTPUT_FORMAT "\"")
-            ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the output file")
-            ("inputfile,i", po::value<std::string>(&inputfile_name)->required(), "Name of the input file");
+                        "progress made.");
+        options.add(general_options);
 
         po::positional_options_description positionalOptions;
         positionalOptions.add("outputfile", -1);

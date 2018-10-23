@@ -8,23 +8,31 @@
     OGR fields.
 
     Options:
-      -h [ --help ]            Print help messages
-      -v [ --version ]         Print version and exit
-      --length                 Add a field containing the length of features. The 
-                               name of the field will be "osm_length". This option 
-                               only applies when ways are exported. The units are 
-                               meters.
-      -t [ --tag ] arg         Tags to create columns for. This option may be used 
-                               multiple times to add more than one tag.
-      -p [ --progress ]        Display a progress bar shwoing the percentage of the
-                               inputfile which has been processed. As PBF files are
-                               sorted by type, the output can be a bit misleading, 
-                               but gives a general idea of the progress made.
-      -w [ --ways ]            Convert ways instead of nodes. Default is nodes.
-      -f [ --format_name ] arg Outputformat. Default is "ESRI Shapefile"
-      -o [ --outputfile ] arg  Name of the output file
-      -i [ --inputfile ] arg   Name of the input file
 
+    Input/Output:
+      -i [ --inputfile ] arg    Name of the input file
+      -o [ --outputfile ] arg   Name of the output file
+      -f [ --format_name ] arg  Outputformat. For a list of supported formats see
+                                the output of the "ogrinfo --formats" command. The
+                                default is "ESRI Shapefile".
+      -l [ --layer_name ] arg   Layer name of the exported layer. The default is
+                                "export".
+      -t [ --tag ] arg          Tags to create columns for. This option may be
+                                repeated multiple times to add more than one tag.
+      -w [ --ways ]             Convert ways instead of nodes. Default is nodes.
+      --length                  Add a field containing the length of features. The
+                                name of the field will be "osm_length". This option
+                                only applies when ways are exported. The units are
+                                meters.
+
+    General:
+      -h [ --help ]             Print help message.
+      -v [ --version ]          Print version and exit.
+      -p [ --progress ]         Display a progress bar showing the percentage of
+                                the inputfile which has been processed. As PBF
+                                files are sorted by type, the output can be a bit
+                                misleading, but gives a general idea of the
+                                progress made.
 
 
 ## Building this software
