@@ -24,15 +24,15 @@
 #define PROGRAM_NAME "osm2ogr_with_tags"
 #define LENGTH_FIELD_NAME "osm_length"
 #define DEFAULT_OUTPUT_FORMAT "ESRI Shapefile"
+#define DEFAULT_LAYER_NAME "export"
 
 
 namespace
 {
-  const size_t ERROR_WRONG_ARGUMENTS = 1;
-  const size_t SUCCESS = 0;
-  const size_t ERROR_UNHANDLED_EXCEPTION = 2;
-
-} // namespace
+    const size_t ERROR_WRONG_ARGUMENTS = 1;
+    const size_t SUCCESS = 0;
+    const size_t ERROR_UNHANDLED_EXCEPTION = 2;
+}
 
 using index_type = osmium::index::map::Map<osmium::unsigned_object_id_type, osmium::Location>;
 using location_handler_type = osmium::handler::NodeLocationsForWays<index_type>;
@@ -101,8 +101,8 @@ protected:
 
 public:
 
-    explicit NodeOGRHandler(gdalcpp::Dataset& dataset, std::vector<std::string> &tags) :
-        layer(dataset, "nodes", wkbPoint) {
+    explicit NodeOGRHandler(gdalcpp::Dataset& dataset, std::string& layerName, std::vector<std::string> &tags) :
+        layer(dataset, layerName, wkbPoint) {
 
         setExportTags(tags);
         addDefaultFieldsToLayer(layer);
@@ -129,8 +129,8 @@ protected:
 
 public:
 
-    explicit WayOGRHandler(gdalcpp::Dataset& dataset, std::vector<std::string> &tags, bool includeLength) :
-        layer(dataset, "ways", wkbLineString),
+    explicit WayOGRHandler(gdalcpp::Dataset& dataset, std::string& layerName, std::vector<std::string> &tags, bool includeLength) :
+        layer(dataset, layerName, wkbLineString),
         includeLength(includeLength) {
 
         setExportTags(tags);
@@ -163,6 +163,7 @@ int main(int argc, char* argv[]) {
         std::string outputfile_name;
         std::string inputfile_name;
         std::string outputfile_format = DEFAULT_OUTPUT_FORMAT;
+        std::string layerName = DEFAULT_LAYER_NAME;
         bool convertWays = false;
         bool includeLength = false;
         bool useProgressBar = false;
@@ -176,6 +177,8 @@ int main(int argc, char* argv[]) {
                         "The name of the field will be \"" LENGTH_FIELD_NAME "\". "
                         "This option only applies when ways are exported. "
                         "The units are meters.")
+            ("layer_name,l", po::value<std::string>(&layerName), "Layer name of the exported layer. "
+                        "The default is \"" DEFAULT_LAYER_NAME "\"")
             ("tag,t", po::value<std::vector<std::string> >(&tags), "Tags to create columns for. This option "
                         "may be used multiple times to add more than one tag.")
             ("progress,p", "Display a progress bar shwoing the percentage of the inputfile "
@@ -260,12 +263,12 @@ int main(int argc, char* argv[]) {
             progress_cb();
 
             if (convertWays) {
-                auto handler = WayOGRHandler(dataset, tags, includeLength);
+                auto handler = WayOGRHandler(dataset, layerName, tags, includeLength);
                 handler.setProgressCallback(progress_cb);
                 osmium::apply(reader, location_handler, handler);
             }
             else {
-                auto handler = NodeOGRHandler(dataset, tags);
+                auto handler = NodeOGRHandler(dataset, layerName, tags);
                 handler.setProgressCallback(progress_cb);
                 osmium::apply(reader, location_handler, handler);
             }
