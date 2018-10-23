@@ -136,7 +136,7 @@ public:
         setExportTags(tags);
         addDefaultFieldsToLayer(layer);
         if (includeLength) {
-            layer.add_field(LENGTH_FIELD_NAME, OFTReal, 10);
+            layer.add_field(LENGTH_FIELD_NAME, OFTReal, 12, 3);
         }
         addTagFieldsToLayer(layer);
 
