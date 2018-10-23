@@ -10,18 +10,21 @@
     Options:
       -h [ --help ]            Print help messages
       -v [ --version ]         Print version and exit
-      --length                 Add a field containing the length of features. The
-                               units are meters. The name of the field will be
-                               "osm_length". This option only applies when ways are
-                               expored.
-      --is_closed              Add a field describing if a way is closed.This
-                               option only applies when ways are expored.
-      -t [ --tag ] arg         Tags to create columns for. This option may be used
+      --length                 Add a field containing the length of features. The 
+                               name of the field will be "osm_length". This option 
+                               only applies when ways are exported. The units are 
+                               meters.
+      -t [ --tag ] arg         Tags to create columns for. This option may be used 
                                multiple times to add more than one tag.
+      -p [ --progress ]        Display a progress bar shwoing the percentage of the
+                               inputfile which has been processed. As PBF files are
+                               sorted by type, the output can be a bit misleading, 
+                               but gives a general idea of the progress made.
       -w [ --ways ]            Convert ways instead of nodes. Default is nodes.
       -f [ --format_name ] arg Outputformat. Default is "ESRI Shapefile"
       -o [ --outputfile ] arg  Name of the output file
       -i [ --inputfile ] arg   Name of the input file
+
 
 
 ## Building this software

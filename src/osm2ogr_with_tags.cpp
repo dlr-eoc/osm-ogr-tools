@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <functional>
 
 #include "version.hpp"
 
@@ -17,6 +18,7 @@
 #include <osmium/geom/haversine.hpp>
 #include <osmium/io/any_input.hpp>
 #include <osmium/handler.hpp>
+#include <osmium/util/progress_bar.hpp>
 
 
 #define PROGRAM_NAME "osm2ogr_with_tags"
@@ -35,6 +37,7 @@ namespace
 using index_type = osmium::index::map::Map<osmium::unsigned_object_id_type, osmium::Location>;
 using location_handler_type = osmium::handler::NodeLocationsForWays<index_type>;
 
+typedef std::function<void(void)> progress_callback_t;
 
 class GenericOGRHandler : public osmium::handler::Handler {
 
@@ -43,6 +46,9 @@ protected:
     osmium::geom::OGRFactory<> ogr_factory;
 
     std::set<std::string> tags;
+
+    progress_callback_t progress_cb;
+    int progress_ticks = 0;
 
     void setTagsOfFeature(gdalcpp::Feature &feature, const osmium::OSMObject &osmobj) {
         for(const std::string& tag : this->tags) {
@@ -69,7 +75,22 @@ protected:
         std::copy(tags.begin(), tags.end(), std::inserter(this->tags, this->tags.end()));
     }
 
-public: 
+    void updateProgress() {
+        if (progress_cb) {
+            // do not update the progress for each call, as this will become expensive
+            if (progress_ticks > 200) {
+                progress_cb();
+                progress_ticks = 0;
+            }
+            progress_ticks++;
+        }
+    }
+
+public:
+
+    void setProgressCallback(progress_callback_t progress_cb) {
+        this->progress_cb = progress_cb;
+    }
 };
 
 
@@ -94,6 +115,7 @@ public:
         setDefaultFieldsOfFeature(feature, node);
         setTagsOfFeature(feature, node);
         feature.add_to_layer();
+        updateProgress();
     }
 };
 
@@ -128,6 +150,7 @@ public:
         }
         setTagsOfFeature(feature, way);
         feature.add_to_layer();
+        updateProgress();
     }
 };
 
@@ -142,17 +165,23 @@ int main(int argc, char* argv[]) {
         std::string outputfile_format = DEFAULT_OUTPUT_FORMAT;
         bool convertWays = false;
         bool includeLength = false;
+        bool useProgressBar = false;
 
         namespace po = boost::program_options;
         po::options_description options("Options");
         options.add_options()
             ("help,h", "Print help messages")
             ("version,v", "Print version and exit")
-            ("length", "Add a field containing the length of features. The units are meters. "
+            ("length", "Add a field containing the length of features. "
                         "The name of the field will be \"" LENGTH_FIELD_NAME "\". "
-                        "This option only applies when ways are expored.")
+                        "This option only applies when ways are exported. "
+                        "The units are meters.")
             ("tag,t", po::value<std::vector<std::string> >(&tags), "Tags to create columns for. This option "
                         "may be used multiple times to add more than one tag.")
+            ("progress,p", "Display a progress bar shwoing the percentage of the inputfile "
+                        "which has been processed. As PBF files are sorted by type, the "
+                        "output can be a bit misleading, but gives a general idea of the "
+                        "progress made.")
             ("ways,w", "Convert ways instead of nodes. Default is nodes.")
             ("format_name,f", po::value<std::string>(&outputfile_format), "Outputformat. Default is \"" DEFAULT_OUTPUT_FORMAT "\"")
             ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the output file")
@@ -168,7 +197,7 @@ int main(int argc, char* argv[]) {
             po::store(po::command_line_parser(argc, argv)
                             .options(options)
                             .positional(positionalOptions)
-                            .run(), 
+                            .run(),
                     vm); // can throw
 
             if ( vm.count("help") ) {
@@ -195,6 +224,7 @@ int main(int argc, char* argv[]) {
 
             convertWays =  vm.count("ways") != 0;
             includeLength =  vm.count("length") != 0;
+            useProgressBar = vm.count("progress") != 0;
 
             po::notify(vm); // throws on error, so do after help in case
                               // there are any problems
@@ -223,14 +253,23 @@ int main(int argc, char* argv[]) {
             CPLSetConfigOption("SHAPE_ENCODING", "UTF8");
             gdalcpp::Dataset dataset{outputfile_format, outputfile_name, gdalcpp::SRS{}, {}};
 
+            auto progressbar = osmium::ProgressBar(reader.file_size(), useProgressBar);
+            progress_callback_t progress_cb = [&progressbar, &reader]() {
+                progressbar.update(reader.offset());
+            };
+            progress_cb();
+
             if (convertWays) {
                 auto handler = WayOGRHandler(dataset, tags, includeLength);
+                handler.setProgressCallback(progress_cb);
                 osmium::apply(reader, location_handler, handler);
             }
             else {
                 auto handler = NodeOGRHandler(dataset, tags);
+                handler.setProgressCallback(progress_cb);
                 osmium::apply(reader, location_handler, handler);
             }
+            progressbar.done();
             reader.close();
         }
     }
