@@ -10,8 +10,8 @@
     Options:
 
     Input/Output:
-      -i [ --inputfile ] arg    Name of the input file
-      -o [ --outputfile ] arg   Name of the output file
+      -i [ --inputfile ] arg    Name of the OSM input file
+      -o [ --outputfile ] arg   Name of the OSM output file
       -f [ --format_name ] arg  Outputformat. For a list of supported formats see
                                 the output of the "ogrinfo --formats" command. The
                                 default is "ESRI Shapefile".

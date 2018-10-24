@@ -173,8 +173,8 @@ int main(int argc, char* argv[]) {
 
         po::options_description main_options("Input/Output");
         main_options.add_options()
-            ("inputfile,i", po::value<std::string>(&inputfile_name)->required(), "Name of the input file")
-            ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the output file")
+            ("inputfile,i", po::value<std::string>(&inputfile_name)->required(), "Name of the OSM input file")
+            ("outputfile,o", po::value<std::string>(&outputfile_name)->required(), "Name of the OSM output file")
             ("format_name,f", po::value<std::string>(&outputfile_format), "Outputformat. "
                         "For a list of supported formats see the output of the \"ogrinfo --formats\" command. "
                         "The default is \"" DEFAULT_OUTPUT_FORMAT "\".")
