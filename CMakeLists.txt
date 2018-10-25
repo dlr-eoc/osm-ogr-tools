@@ -33,6 +33,10 @@ set(AUTHOR "Nico Mandery <nico.mandery@dlr.de>")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(GetGitRevisionDescription)
+get_git_head_revision(HEAD OSMOGRTOOLS_GIT_COMMIT)
+git_local_changes(OSMOGRTOOLS_GIT_COMMIT_LOCAL_CHANGES)
+
 
 #-----------------------------------------------------------------------------
 #

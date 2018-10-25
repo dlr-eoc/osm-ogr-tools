@@ -299,6 +299,7 @@ int main(int argc, char* argv[]) {
             if ( vm.count("version") ) {
                 std::cout
                     << OSMOGRTOOLS_VERSION
+                    << " (git: " << OSMOGRTOOLS_GIT_COMMIT_FULL << ")"
                     << std::endl;
                 return SUCCESS;
             }
