@@ -93,21 +93,21 @@ if __name__ == '__main__':
             description="Extract geographical subsets from an OSM-PBF file and export the data to a GIS format.",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument('--geofilter', help="Vector-dataset to use as a spatial filter. " 
+    parser.add_argument('--geofilter', help="Vector-dataset to use as a spatial filter. "
                     + "Geometry type must be polygon or multipolygon.")
-    parser.add_argument('-f', '--format_name', nargs='?', default='ESRI Shapefile', help='Outputformat. '
+    parser.add_argument('-f', '--format_name', default='ESRI Shapefile', help='Outputformat. '
                     + 'For a list of supported formats see the output of the "ogrinfo --formats" command. '
                     + 'The default is "ESRI Shapefile".')
-    parser.add_argument('-l', '--layer_name', nargs='?', default='export', help='Layer name of the exported layer.')
+    parser.add_argument('-l', '--layer_name', default='export', help='Layer name of the exported layer.')
     parser.add_argument('--length', action='store_true', help='Add a field containing the length of features. '
                     + 'This option only applies when ways are exported. The units are meters.')
     parser.add_argument('-w', '--ways', action='store_true', help='Convert ways instead of nodes. Default is nodes.')
     parser.add_argument('-t', '--tags', nargs='*', help='Tags to create columns for.')
+    parser.add_argument('-s', '--strategy', default='complete_ways',
+                    help='Strategy to create geographical extracts. See the "osmium extract" manual for more on this topic.')
     parser.add_argument('osm_input_file', help="OSM input file")
     parser.add_argument('ogr_output_file', help="OGR output file")
     args = parser.parse_args()
-    print(args)
-
 
     former_workdir = os.getcwd()
     with tempdir() as tdir:
@@ -126,8 +126,12 @@ if __name__ == '__main__':
                 )))
                 fh.flush()
                 print("\nExtracting region from the input data")
-                subprocess.run(
-                        ['osmium', 'extract', '-c', osmium_cfg_name, os.path.join(former_workdir, args.osm_input_file)],
+                subprocess.run([
+                            'osmium',
+                            'extract',
+                            '-c', osmium_cfg_name, os.path.join(former_workdir, args.osm_input_file),
+                            '-s', args.strategy
+                        ],
                         check=True
                 )
 
@@ -153,9 +157,9 @@ if __name__ == '__main__':
                 convertion_args.append('--tag')
                 convertion_args.append(t)
         subprocess.run(
-                convertion_args, 
+                convertion_args,
                 check=True
         )
 
     os.chdir(former_workdir)
-        
+
