@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <functional>
+#include <iterator>
 
 #include "version.hpp"
 
@@ -39,6 +40,17 @@ using location_handler_type = osmium::handler::NodeLocationsForWays<index_type>;
 
 typedef std::function<void(void)> progress_callback_t;
 
+
+inline double haversine_distance(const osmium::NodeRef* start, const osmium::NodeRef* end) {
+    double sum_length = 0;
+    for (auto it = start; it != end; ++it) {
+        if (std::next(it) != end) {
+            sum_length += osmium::geom::haversine::distance(it->location(), std::next(it)->location());
+        }
+    }
+    return sum_length;
+}
+
 class GenericOGRHandler : public osmium::handler::Handler {
 
 protected:
@@ -63,11 +75,11 @@ protected:
     }
 
     void addDefaultFieldsToLayer(gdalcpp::Layer &layer) {
-        layer.add_field("id", OFTReal, 10);
+        layer.add_field("osm_id", OFTReal, 10);
     }
 
     void setDefaultFieldsOfFeature(gdalcpp::Feature &feature, const osmium::OSMObject &osmobj) {
-        feature.set_field("id", static_cast<double>(osmobj.id()));
+        feature.set_field("osm_id", static_cast<double>(osmobj.id()));
     }
 
     void setExportTags(std::vector<std::string> &tags) {
@@ -111,10 +123,15 @@ public:
     }
 
     void node(const osmium::Node& node) {
-        gdalcpp::Feature feature{layer, ogr_factory.create_point(node)};
-        setDefaultFieldsOfFeature(feature, node);
-        setTagsOfFeature(feature, node);
-        feature.add_to_layer();
+        try {
+            gdalcpp::Feature feature{layer, ogr_factory.create_point(node)};
+            setDefaultFieldsOfFeature(feature, node);
+            setTagsOfFeature(feature, node);
+            feature.add_to_layer();
+        }
+        catch (osmium::invalid_location& e) {
+            std::cerr << "Ignoring node with an invalid location" << std::endl;
+        }
         updateProgress();
     }
 };
@@ -127,6 +144,8 @@ protected:
     gdalcpp::Layer layer;
     bool includeLength;
 
+    const char * wayPartFieldName = "way_part";
+
 public:
 
     explicit WayOGRHandler(gdalcpp::Dataset& dataset, std::string& layerName, std::vector<std::string> &tags, bool includeLength) :
@@ -135,6 +154,7 @@ public:
 
         setExportTags(tags);
         addDefaultFieldsToLayer(layer);
+        layer.add_field(wayPartFieldName, OFTReal, 10);
         if (includeLength) {
             layer.add_field(LENGTH_FIELD_NAME, OFTReal, 12, 3);
         }
@@ -143,13 +163,43 @@ public:
     }
 
     void way(const osmium::Way& way) {
-        gdalcpp::Feature feature{layer, ogr_factory.create_linestring(way)};
-        setDefaultFieldsOfFeature(feature, way);
-        if (includeLength) {
-            feature.set_field(LENGTH_FIELD_NAME, osmium::geom::haversine::distance(way.nodes()));
+
+        // extractions using osmium may leave some invalid locations in ways. So we remove
+        // these parts of the ways and just return the valid parts as seperate features
+        // See // https://osmcode.org/osmium-tool/manual.html#creating-geographic-extracts :
+        // "... but they might be missing some nodes, they are not reference-complete... "
+        const osmium::WayNodeList& nodes = way.nodes();
+        auto node_it = nodes.begin();
+        int part = 0;
+        while(node_it != nodes.end()) {
+            if (node_it->location().valid()) {
+                auto part_start = node_it;
+                while (true) {
+                    auto next_node = std::next(node_it);
+                    if ((!next_node->location().valid()) || (next_node == nodes.end())) {
+                        break;
+                    }
+                    node_it++;
+                }
+                if (part_start != node_it) {
+                    ogr_factory.linestring_start();
+                    size_t num_points = ogr_factory.fill_linestring_unique(part_start, std::next(node_it));
+
+                    gdalcpp::Feature feature{layer, ogr_factory.linestring_finish(num_points)};
+
+                    setDefaultFieldsOfFeature(feature, way);
+                    feature.set_field(wayPartFieldName, static_cast<double>(part++));
+                    if (includeLength) {
+                        feature.set_field(LENGTH_FIELD_NAME, haversine_distance(part_start, std::next(node_it)));
+                    }
+                    setTagsOfFeature(feature, way);
+                    feature.add_to_layer();
+                }
+
+            }
+            node_it++;
         }
-        setTagsOfFeature(feature, way);
-        feature.add_to_layer();
+
         updateProgress();
     }
 };
