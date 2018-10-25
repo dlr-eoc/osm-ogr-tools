@@ -3,12 +3,18 @@
 Tools for working with OSM data. Most of these tools are based on [osmium-tool](https://github.com/osmcode/osmium-tool) and
 the [libosmium library](https://github.com/osmcode/libosmium).
 
+Currently the tools can be viewed as an extension to the functionality provided by
+the `osmium` tools. So please also refer to the [osmium tool manual](https://osmcode.org/osmium-tool/manual.html).
+
 ## Included tools and libraries
 
 ### osm_extract.py
 
-Wrapper to combine `osm2ogr_with_tags` and `osmium`. This script can also be imported as a python module into
-own programs. It provides the `osm_ogr_extract` function.
+Wrapper to combine `osm2ogr_with_tags` and `osmium extract` and add the feature to filter OSM
+data using complete vector datasets.
+
+This script can also be imported as a python module into own programs, just copy it into your source tree or
+modify your `sys.path` to import it from its intallation directory. It provides the `osm_ogr_extract` function.
 
 
     usage: osm_extract.py [-h] [--geofilter GEOFILTER] [-f FORMAT_NAME]
@@ -98,6 +104,13 @@ Build:
     cmake ..
     make
 
+After the build, for a system-wide installation:
+
+
+    sudo make install
+
+
+This will also install the python scripts.
 
 # Legal an Licensing
 
