@@ -283,7 +283,7 @@ int main(int argc, char* argv[]) {
 
             if ( vm.count("help") ) {
                 std::cout
-                    << PROGRAM_NAME << " (version " << OSM2OGR_VERSION_FULL << ")"
+                    << PROGRAM_NAME << " (version " << OSMOGRTOOLS_VERSION << ")"
                     << std::endl
                     << std::endl
                     << "Convert OSM data to OGR formats. This tools allows to export arbitary tags to"
@@ -298,7 +298,7 @@ int main(int argc, char* argv[]) {
 
             if ( vm.count("version") ) {
                 std::cout
-                    << OSM2OGR_VERSION_FULL
+                    << OSMOGRTOOLS_VERSION
                     << std::endl;
                 return SUCCESS;
             }

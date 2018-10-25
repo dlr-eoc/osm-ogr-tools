@@ -1,0 +1,6 @@
+#ifndef __version_hpp__
+#define __version_hpp__
+
+#cmakedefine OSMOGRTOOLS_VERSION "@OSMOGRTOOLS_VERSION@"
+
+#endif /* __version_hpp__ */
