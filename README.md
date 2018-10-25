@@ -1,12 +1,14 @@
 # osm-ogr-tools
 
-## osm-extract.py
+## osm_extract.py
 
-Wrapper to combine `osm2ogr_with_tags` and `osmium`.
+Wrapper to combine `osm2ogr_with_tags` and `osmium`. This script can also be imported as a python module into
+own programs. It provides the `osm_ogr_extract` function.
 
 
-    usage: osm-extract.py [-h] [--geofilter GEOFILTER] [-f [FORMAT_NAME]]
-                          [-l [LAYER_NAME]] [--length] [-w] [-t [TAGS [TAGS ...]]]
+    usage: osm_extract.py [-h] [--geofilter GEOFILTER] [-f FORMAT_NAME]
+                          [-l LAYER_NAME] [--length] [-w] [-t [TAGS [TAGS ...]]]
+                          [-s STRATEGY]
                           osm_input_file ogr_output_file
 
     Extract geographical subsets from an OSM-PBF file and export the data to a GIS
@@ -21,11 +23,11 @@ Wrapper to combine `osm2ogr_with_tags` and `osmium`.
       --geofilter GEOFILTER
                             Vector-dataset to use as a spatial filter. Geometry
                             type must be polygon or multipolygon. (default: None)
-      -f [FORMAT_NAME], --format_name [FORMAT_NAME]
+      -f FORMAT_NAME, --format_name FORMAT_NAME
                             Outputformat. For a list of supported formats see the
-                            output of the "ogrinfo --formats" command. The default
-                            is "ESRI Shapefile". (default: ESRI Shapefile)
-      -l [LAYER_NAME], --layer_name [LAYER_NAME]
+                            output of the "ogrinfo --formats" command. (default:
+                            ESRI Shapefile)
+      -l LAYER_NAME, --layer_name LAYER_NAME
                             Layer name of the exported layer. (default: export)
       --length              Add a field containing the length of features. This
                             option only applies when ways are exported. The units
@@ -34,6 +36,10 @@ Wrapper to combine `osm2ogr_with_tags` and `osmium`.
                             (default: False)
       -t [TAGS [TAGS ...]], --tags [TAGS [TAGS ...]]
                             Tags to create columns for. (default: None)
+      -s STRATEGY, --strategy STRATEGY
+                            Strategy to create geographical extracts. See the
+                            "osmium extract" manual for more on this topic.
+                            (default: complete_ways)
 
 
 ## osm2ogr_with_tags
