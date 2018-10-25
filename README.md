@@ -1,6 +1,11 @@
 # osm-ogr-tools
 
-## osm_extract.py
+Tools for working with OSM data. Most of these tools are based on [osmium-tool](https://github.com/osmcode/osmium-tool) and
+the [libosmium library](https://github.com/osmcode/libosmium).
+
+## Included tools and libraries
+
+### osm_extract.py
 
 Wrapper to combine `osm2ogr_with_tags` and `osmium`. This script can also be imported as a python module into
 own programs. It provides the `osm_ogr_extract` function.
@@ -42,7 +47,7 @@ own programs. It provides the `osm_ogr_extract` function.
                             (default: complete_ways)
 
 
-## osm2ogr_with_tags
+### osm2ogr_with_tags
 
     osm2ogr_with_tags (version 0.1.0)
 
@@ -87,9 +92,16 @@ Install the dependencies (this command is ubuntu specific):
 
 Build:
 
-
     cd osm-ogr-tools
     mkdir build
     cd build
     cmake ..
     make
+
+
+# Legal an Licensing
+
+This software is licensed under the [Apache 2.0 License](LICENSE.txt).
+
+(c) 2018 German Aerospace Center (DLR); German Remote Sensing Data Center; Department: Geo-Risks and Civil Security
+
