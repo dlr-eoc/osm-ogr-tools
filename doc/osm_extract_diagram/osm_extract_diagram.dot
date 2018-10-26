@@ -1,0 +1,48 @@
+digraph models_diagram{
+    graph[rankdir=LR, overlap=false, splines=true];
+    node [shape=record, fontsize=9, fontname="Verdana"];
+    edge [style=solid];
+    output [shape=none, margin=0, label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td bgcolor="salmon">Output vector dataset</td></tr>
+          <tr><td><img src="exported_data.png"/></td></tr>
+          <tr><td port="0" align="left">osm_id: integer</td></tr>
+          <tr><td port="1" align="left">highway: string</td></tr>
+          <tr><td port="2" align="left">name: string</td></tr>
+      </table>>];
+
+    osm_extract [shape=none, margin=0, label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td bgcolor="lightblue">osm_extract.py</td></tr>
+          <tr><td port="0" align="left">osm_input_file</td></tr>
+          <tr><td port="1" align="left">ogr_output_file</td></tr>
+          <tr><td port="2" align="left">--geofilter (optional)</td></tr>
+          <tr><td port="3" align="left">--tag (optional)</td></tr>
+          <tr><td align="left">... other options ...</td></tr>
+      </table>>];
+  
+    pbf [shape=none, margin=0, label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td bgcolor="palegreen3">OSM input file</td></tr>
+          <tr><td port="0" align="left">PBF-Format</td></tr>
+      </table>>];
+
+    tags [shape=none, margin=0, label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td bgcolor="palegreen3">List of tags the export<br/>into columns</td></tr>
+          <tr><td port="0" align="left">highway</td></tr>
+          <tr><td port="1" align="left">name</td></tr>
+      </table>>];
+
+    spatial_filter [shape=none, margin=0, label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td bgcolor="palegreen3">Spatial filter dataset</td></tr>
+          <tr><td port="2"><img src="spatialfilter.png"/></td></tr>
+          <tr><td>Any OGR-readable polygon or<br/>multipolygon vector dataset.</td></tr>
+      </table>>];
+  
+    pbf:0 -> osm_extract:0;
+    tags -> osm_extract:3;
+    spatial_filter -> osm_extract:2;
+    osm_extract:1 -> output;
+}

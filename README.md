@@ -13,6 +13,8 @@ the `osmium` tools. So please also refer to the [osmium tool manual](https://osm
 Wrapper to combine `osm2ogr_with_tags` and `osmium extract` and add the feature to filter OSM
 data using complete vector datasets.
 
+![](doc/osm_extract_diagram.png)
+
 This script can also be imported as a python module into own programs, just copy it into your source tree or
 modify your `sys.path` to import it from its intallation directory. It provides the `osm_ogr_extract` function.
 
