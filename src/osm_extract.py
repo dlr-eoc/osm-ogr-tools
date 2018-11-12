@@ -35,8 +35,8 @@ import contextlib
 import shutil
 import os
 
-def get_multipolygon_from_file(filename):
-    """condense teh geometries from the filter file into one multipolygon"""
+def get_extraction_area_from_file(filename):
+    """condense the geometries from the filter file into one geometry"""
 
     ds = ogr.Open(filename)
     layer = ds.GetLayer(0)
@@ -80,10 +80,13 @@ def get_osmium_tool_config(output_filename=None, directory=None, spatial_filter_
     }
 
     if spatial_filter_file:
-        filter_multipolygon = get_multipolygon_from_file(spatial_filter_file)
-        if filter_multipolygon:
-            json_geom = json.loads(filter_multipolygon.ExportToJson())
-            extract_cfg['multipolygon'] = json_geom['coordinates']
+        extraction_area = get_extraction_area_from_file(spatial_filter_file)
+        if extraction_area:
+            key = 'multipolygon'
+            if extraction_area.GetGeometryType() == ogr.wkbPolygon:
+                key = 'polygon'
+            json_geom = json.loads(extraction_area.ExportToJson())
+            extract_cfg[key] = json_geom['coordinates']
 
     cfg = {
         'directory': directory,
