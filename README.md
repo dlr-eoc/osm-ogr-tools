@@ -114,7 +114,7 @@ After the build, for a system-wide installation:
 
 This will also install the python scripts.
 
-# Legal an Licensing
+# Legal and Licensing
 
 This software is licensed under the [Apache 2.0 License](LICENSE.txt).
 
